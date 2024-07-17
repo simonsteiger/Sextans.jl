@@ -1,6 +1,8 @@
 using Sextans
 using Test
+using Distributions
+using Random: Xoshiro
 
-@testset "Sextans.jl" begin
-    # Write your tests here.
+@testset "Circular distributions" begin
+    include("utils/circular.jl")
 end

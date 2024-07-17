@@ -3,6 +3,10 @@ uuid = "c5b77123-0644-49ad-8775-a80d028b173c"
 authors = ["simonsteiger <simon.j.steiger@gmail.com> and contributors"]
 version = "1.0.0-DEV"
 
+[deps]
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
 [compat]
 julia = "1.6.7"
 
