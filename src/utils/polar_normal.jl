@@ -1,11 +1,12 @@
-struct Circular{T}
+
+struct Polar{T}
     d0::T
     lower
     upper
 end
 
-function circular(d0::UnivariateDistribution; lower, upper)
-    return Circular(d0, lower, upper)
+function polar(d0::UnivariateDistribution; lower, upper)
+    return Polar(d0, lower, upper)
 end
 
 function wrap(x; lower, upper)
@@ -23,20 +24,20 @@ function wrap(x; lower, upper)
     return x
 end
 
-cN = circular(Normal(360, 40); lower=0, upper=360);
+cN = polar(Normal(360, 40); lower=0, upper=360);
 
-function Random.rand(d::Circular{<:Normal{<:Real}})
+function Random.rand(d::Polar{<:Normal{<:Real}})
     return wrap.(rand(default_rng(), d.d0); lower=d.lower, upper=d.upper)
 end
 
-function Random.rand(d::Circular{<:Normal{<:Real}}, T::Int)
+function Random.rand(d::Polar{<:Normal{<:Real}}, T::Int)
     return wrap.(rand(default_rng(), d.d0, T); lower=d.lower, upper=d.upper)
 end
 
-function Random.rand(rng::AbstractRNG, d::Circular{<:Normal{<:Real}})
+function Random.rand(rng::AbstractRNG, d::Polar{<:Normal{<:Real}})
     return wrap(rand(rng, d.d0); lower=d.lower, upper=d.upper)
 end
 
-function Random.rand(rng::AbstractRNG, d::Circular{<:Normal{<:Real}}, T::Int)
+function Random.rand(rng::AbstractRNG, d::Polar{<:Normal{<:Real}}, T::Int)
     return wrap.(rand(rng, d.d0, T); lower=d.lower, upper=d.upper)
 end
