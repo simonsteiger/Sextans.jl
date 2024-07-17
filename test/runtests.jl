@@ -1,7 +1,7 @@
 using Sextans
 using Test
 using Distributions
-using Random: Xoshiro
+using Random: MersenneTwister
 
 @testset "Circular distributions" begin
     include("utils/circular.jl")

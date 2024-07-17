@@ -8,7 +8,7 @@ end
 @testset "Draw random samples" begin
     @test rand(cN) isa Float64
     @test rand(cN, 3) isa Vector{Float64}
-    @test rand(Xoshiro(42), cN, 3) isa Vector{Float64}
+    @test rand(MersenneTwister(42), cN, 3) isa Vector{Float64}
 end
 
 @testset "All values inside range" begin
