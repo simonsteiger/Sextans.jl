@@ -15,6 +15,8 @@ function _unnest(x)
 	return out
 end
 
+_envrow(f, i, col) = f.(Ref(col[i]), col)
+
 """
 	PhysicalEnvironment
 
@@ -34,11 +36,11 @@ struct PhysicalEnvironment <: AbstractEnvironment
 		groups = df[:, "Island Group"]
 		starts = findall(x -> occursin("START", x), groups)
 		distances = map(1:nrow(df)) do i
-			out = envrow(haversine, i, latlon) ./ 1000
+			out = _envrow(haversine, i, latlon) ./ 1000
 			out[starts] .= Inf
 			return out
 		end |> unnest
-		angles = map(i -> envrow(planarangle, i, latlon), 1:nrow(df)) |> _unnest
+		angles = map(i -> _envrow(planarangle, i, latlon), 1:nrow(df)) |> _unnest
 		# TODO distances and angles should be column major, each column being one island... or is this symmetrical anyway... ?
 		return new(distances, angles, wind, latlon, groups)
 	end
