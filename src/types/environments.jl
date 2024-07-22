@@ -25,13 +25,13 @@ Store data about the observed environmental conditions `distances`, `angles`, an
 struct PhysicalEnvironment <: AbstractEnvironment
 	distances
 	angles
-	wind
+	winds
 	latlon
 	groups
 	function PhysicalEnvironment(df::DataFrame)
 		"latlon" in names(df) || throw("`latlon` column not found")
 		"Island Group" in names(df) || throw("`Island Group` column not found")
-		wind = zeros(nrow(df), nrow(df))
+		winds = zeros(nrow(df), nrow(df))
 		latlon = df.latlon
 		groups = df[:, "Island Group"]
 		starts = findall(x -> occursin("START", x), groups)
@@ -39,21 +39,21 @@ struct PhysicalEnvironment <: AbstractEnvironment
 			out = _envrow(haversine, i, latlon) ./ 1000
 			out[starts] .= Inf
 			return out
-		end |> unnest
+		end |> _unnest
 		angles = map(i -> _envrow(planarangle, i, latlon), 1:nrow(df)) |> _unnest
 		# TODO distances and angles should be column major, each column being one island... or is this symmetrical anyway... ?
-		return new(distances, angles, wind, latlon, groups)
+		return new(distances, angles, winds, latlon, groups)
 	end
 end
 
 latlon(x::PhysicalEnvironment) = x.latlon
 
 """
-	wind(x::PhysicalEnvironment)
+	winds(x::PhysicalEnvironment)
 
-Return the `wind` field of a PhysicalEnvironment `x`. 
+Return the `winds` field of a PhysicalEnvironment `x`. 
 """
-wind(x::PhysicalEnvironment) = x.wind
+winds(x::PhysicalEnvironment) = x.winds
 
 """
 	angles(x::AbstractEnvironment)

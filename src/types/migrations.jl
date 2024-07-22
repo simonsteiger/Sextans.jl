@@ -17,15 +17,17 @@ mutable struct TargetedMigration <: AbstractMigration
 	end
 end
 
-function direction(x::TargetedMigration)
-    cur_latlon = latlon(x, current(x))
-    fin_latlon = latlon(x, finish(x))
-    return planarangle(cur_latlon, fin_latlon)
-end
-
 start(x::AbstractMigration) = x.start
 
 finish(x::TargetedMigration) = x.finish
+
+latlon(x::TargetedMigration, i) = x.latlon[i]
+
+function direction(x::TargetedMigration)
+    cur_latlon = latlon(x, current(x))
+    fin_latlon = latlon(x, finish(x))
+    return polarangle(cur_latlon, fin_latlon)
+end
 
 """
 	travelled(x::AbstractMigration)
@@ -46,4 +48,4 @@ history(x::AbstractMigration) = x.history
 
 Returns the row-index of the `current` location.
 """
-current(x::AbstractMigration) = @view history(x)[end] # FIXME not sure if @view is useful here
+current(x::AbstractMigration) = history(x)[end]
