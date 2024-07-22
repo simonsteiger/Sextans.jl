@@ -18,6 +18,10 @@ julia> a - b
 """
 struct Angle
     value::Float64
+    function Angle(x)
+        Base.isbetween(0, x, 360) || throw(DomainError(x, "angles are only defined for 0 < x < 360"))
+        return new(x)
+    end
 end
 
 """
@@ -69,10 +73,11 @@ function polarangle(x::T, y::T) where {T<:NTuple{2,AbstractFloat}}
     return deg > zero(deg) ? deg : _adjust(deg)
 end
 
-function polarangle(east, north)
-    deg = atand(east, north)
-    if deg > zero(deg)
-        return Angle(deg)
-    end
-    return Angle(_adjust(deg))
-end
+# FIXME Need to fix method for latlon values to be able to provide this as fallback
+# function polarangle(east, north)
+#     deg = atand(east, north)
+#     if deg > zero(deg)
+#         return Angle(deg)
+#     end
+#     return Angle(_adjust(deg))
+# end

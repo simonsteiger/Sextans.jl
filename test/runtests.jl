@@ -1,28 +1,27 @@
 using Sextans
 using Test
 using Distributions
+using LinearAlgebra
 using Random: MersenneTwister
 using Base: -, +
+using CSV
+using DataFrames
+using Chain
 
-function create_distmat(dims)
-	D = rand(Uniform(10, 2000), dims, dims)
-	D[D .== diag(D)] .= 0
-	return Symmetric(D)
+df = @chain begin
+	joinpath(@__DIR__, "data", "environment.csv")
+	CSV.read(_, DataFrame)
+	transform(_, [:Latitude, :Longitude] => ByRow((x,y) -> (x, y)) => :latlon)
+	dropmissing(_)
 end
 
-function create_anglemat(dims)
-	A = rand(Uniform(0, 360), dims, dims)
-	A[A .== diag(A)] .= 180 # This has to be the mode of the distribution
-	return Symmetric(A)
-end
+Env = PhysicalEnvironment(df)
 
-function create_windmat(dims)
-	M = rand(Gamma(3, 15), dims, dims)
-	M[M .== diag(M)] .= 0
-	return Symmetric(M)
-end
+Agent = ActiveAgent(1000, 60, 4, missing)
 
-@testset "Polar dists" begin
+Mig = TargetedMigration(1, 100, Env)
+
+@testset "Polar N" begin
     include("utils/polar_normal.jl")
 end
 
@@ -32,4 +31,16 @@ end
 
 @testset "Angles" begin
     include("utils/angle.jl")
+end
+
+@testset "Environments" begin
+	include("types/environments.jl")
+end
+
+@testset "Agents" begin
+	include("types/agents.jl")
+end
+
+@testset "Migrations" begin
+	include("types/migrations.jl")
 end

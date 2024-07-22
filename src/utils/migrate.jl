@@ -16,11 +16,11 @@ end
 add_dist!(m, pe, a, b) = m.travelled += distances(pe)[a, b]
 
 """
-	migrate(m::T, agent, pe::PhysicalEnvironment) where T <: AbstractMigration
+	migrate(m::T, agent, pe::AbstractEnvironment) where T <: AbstractMigration
 
 Returns the simulated migration of type `T` of `agent` in physical environment `pe`.
 """
-function migrate(m::T, agent, pe::PhysicalEnvironment) where T <: AbstractMigration
+function migrate(m::T, agent, pe::AbstractEnvironment) where T <: AbstractMigration
 	# e_env = EffectiveEnvironment(pe, agent)
 	# TODO does this adjustment have to happen _INSIDE_ migrate? No, right?!
 	# ATTENTION had e_env before. But e_env contains only adjustments to angles, not new angles? CAREFUL!
@@ -54,7 +54,7 @@ function migrate(m::T, agent, pe::PhysicalEnvironment) where T <: AbstractMigrat
 	return m
 end
 
-function main(pe::PhysicalEnvironment, a::AbstractAgent, niter)
+function main(pe::AbstractEnvironment, a::AbstractAgent, niter)
 	# Find all indices of start positions among island groups
 	starts = findall(x -> occursin("START", x), unique(groups(pe)))
 
