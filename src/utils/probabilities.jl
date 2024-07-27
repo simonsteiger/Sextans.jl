@@ -1,3 +1,5 @@
+SigDist = Sigmoid(1.0, 1.0 - eps(), -10.0, sqrt(2))
+
 """
 	probabilities(current, env, erange, dir)
 

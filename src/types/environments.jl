@@ -10,7 +10,6 @@ function _unnest(x)
 	out = @chain x begin
 		reduce(vcat, _)
 		reshape(_, dims)
-		transpose(_) # can we avoid this? otherwise we get the wrong transpose
 	end
 	return out
 end

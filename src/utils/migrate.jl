@@ -17,7 +17,7 @@ function notarrived(m::T) where {T<:AbstractMigration}
     return current(m) != finish(m)
 end
 
-add_dist!(m, pe, a, b) = m.travelled += distances(pe)[a, b]
+add_dist!(m, pe, a, b) = m.travelled += distances(pe)[b, a]
 
 """
 	migrate(m::T, agent, pe::AbstractEnvironment) where T <: AbstractMigration

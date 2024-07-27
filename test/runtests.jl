@@ -17,9 +17,9 @@ end
 
 env = PhysicalEnvironment(df)
 
-agent = ActiveAgent(1000, 60, 4, missing)
+agent = ActiveAgent(5000, 60, 4, missing)
 
-mig = TargetedMigration(1, 100, env)
+mig = TargetedMigration(1, 345, env)
 
 @testset "Polar N" begin
     include("utils/polar_normal.jl")

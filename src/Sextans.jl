@@ -8,6 +8,7 @@ using Base: -, +
 using Chain
 using DataFrames
 using Distances
+using LinearAlgebra
 
 export Angle, value, -, polarangle
 export polar, Polar, rand
