@@ -1,14 +1,18 @@
 @testset "Constructor" begin
-    @test Mig isa AbstractMigration
+    @test mig isa AbstractMigration
 end
 
 @testset "Field access" begin
-    @test start(Mig) isa Int
-    @test finish(Mig) isa Int
-    @test current(Mig) isa Int
+    @test start(mig) isa Int
+    @test finish(mig) isa Int
+    @test current(mig) isa Int
 end
 
 @testset "Direction" begin
-    @test Sextans.direction(Mig) isa Float64
-    @test !(Angle(Sextans.direction(Mig)) isa DomainError)
+    @test Sextans.direction(mig) isa Float64
+    @test !(Angle(Sextans.direction(mig)) isa DomainError)
+end
+
+@testset "Migrate" begin
+    @test migrate!(mig, agent, env) isa AbstractMigration
 end

@@ -1,11 +1,11 @@
 @testset "Constructor" begin
-    @test Agent isa AbstractAgent
-    @test Agent isa ActiveAgent
-    @test !isa(Agent, PassiveAgent)
+    @test agent isa AbstractAgent
+    @test agent isa ActiveAgent
+    @test !isa(agent, PassiveAgent)
 end
 
 @testset "Field access" begin
-    @test Sextans.range(Agent) isa Real
-    @test flightspeed(Agent) isa Real
-    @test resistance(Agent) isa Real
+    @test Sextans.range(agent) isa Real
+    @test flightspeed(agent) isa Real
+    @test resistance(agent) isa Real
 end
