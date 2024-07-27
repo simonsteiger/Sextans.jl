@@ -41,7 +41,6 @@ struct PhysicalEnvironment <: AbstractEnvironment
 			return out
 		end |> _unnest
 		angles = map(i -> _envrow(polarangle, i, latlon), 1:nrow(df)) |> _unnest
-		# TODO distances and angles should be column major, each column being one island... or is this symmetrical anyway... ?
 		return new(distances, angles, winds, latlon, groups)
 	end
 end
