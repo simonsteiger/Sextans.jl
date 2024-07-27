@@ -1,6 +1,5 @@
 σ = Sigmoid(1, 1, -10, sqrt(2))
 
-
 @testset "Costructing Sigmoids" begin
     @test Sigmoid(1, 1, 10, sqrt(2)) isa Sigmoid
     @test try Sigmoid(1, -1, -10, sqrt(2)) catch e; e isa DomainError end

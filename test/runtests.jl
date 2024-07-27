@@ -15,11 +15,11 @@ df = @chain begin
 	dropmissing(_)
 end
 
-Env = PhysicalEnvironment(df)
+env = PhysicalEnvironment(df)
 
-Agent = ActiveAgent(1000, 60, 4, missing)
+agent = ActiveAgent(1000, 60, 4, missing)
 
-Mig = TargetedMigration(1, 100, Env)
+mig = TargetedMigration(1, 100, env)
 
 @testset "Polar N" begin
     include("utils/polar_normal.jl")

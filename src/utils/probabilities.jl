@@ -11,7 +11,7 @@ function probabilities(current, env, erange, dir, i, σ) # effective range used
 	α = @view angles(env)[:, current]
 	p_Δ = evaluate(SigDist,  Δ, erange)
 	N = Normal.(μ, σ_eff)
-	p_α = pdf.(N, α) ./ pdf.(N, mean.(N))Ho
+	p_α = pdf.(N, α) ./ pdf.(N, mean.(N))
 	p = p_α .* p_Δ
 	stayed = rand(Bernoulli(prod(1 .- p)))
 	if stayed

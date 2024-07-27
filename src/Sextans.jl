@@ -23,7 +23,7 @@ export AbstractMigration, TargetedMigration
 export start, finish, travelled, history, current
 
 export erange
-export migrate, main
+export migrate!
 export probabilities
 
 include("types/agents.jl")
