@@ -15,11 +15,18 @@ df = @chain begin
 	dropmissing(_)
 end
 
+axm = Axioms(
+	max_iter = 30,
+	min_range = 1//3,
+	default_precision=80,
+	max_range = 5000,
+)
+
 env = PhysicalEnvironment(df)
 
-agent = ActiveAgent(1000, 60, 4, missing)
+agent = ActiveAgent(5000, 60, 4, missing)
 
-mig = TargetedMigration(1, 100, env)
+mig = TargetedMigration(1, 345, env, axm)
 
 @testset "Polar N" begin
     include("utils/polar_normal.jl")

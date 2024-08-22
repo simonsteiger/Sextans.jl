@@ -3,6 +3,8 @@
 
 Returns the effective range of the `agent` given the distance it has `travelled`.
 """
-erange(agent::ActiveAgent, travelled) = maximum([range(agent) / 3, range(agent) - travelled])
+function erange(agent::ActiveAgent, travelled, min_range)
+	return maximum([range(agent) * min_range, range(agent) - travelled])
+end
 
 # TODO need an equivalent for passive agents

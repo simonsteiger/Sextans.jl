@@ -17,7 +17,7 @@ function notarrived(m::T) where {T<:AbstractMigration}
     return current(m) != finish(m)
 end
 
-add_dist!(m, pe, a, b) = m.travelled += distances(pe)[a, b]
+add_dist!(m, pe, a, b) = m.travelled += distances(pe)[b, a]
 
 """
 	migrate(m::T, agent, pe::AbstractEnvironment) where T <: AbstractMigration
@@ -33,15 +33,15 @@ function migrate!(m::T, agent, pe::AbstractEnvironment) where {T<:AbstractMigrat
     i = 1
 
     # σ is the adjusted precision of an agent depending on its range (larger range means higher precision)
-    σ = default_precision * evaluate(SigAngl, range(agent), max_range)
+    σ = m.axioms.default_precision * evaluate(SigAngl, range(agent), m.axioms.max_range)
 
-    while ismigrating(history(m), i) && notarrived(m) && i < 100
+    while ismigrating(history(m), i) && notarrived(m) && i < m.axioms.max_iter
         # Get current optimal migration angle (only changes in TargetedMigration)
         dir = direction(m)
         # Get current position from migration history
         current_pos = current(m)
         # Get current effective range of agent
-        eff_range = erange(agent, travelled(m))
+        eff_range = erange(agent, travelled(m), m.axioms.min_range)
         # Calculate probabilities of potential targets from current position
         p = probabilities(current_pos, pe, eff_range, dir, i, σ)
         # Draw the target position
