@@ -6,14 +6,15 @@ Abstract supertype of different migration types.
 abstract type AbstractMigration end
 
 mutable struct TargetedMigration <: AbstractMigration
+	axioms::Axioms
 	start::Int64
 	finish::Int64
 	latlon::Vector{NTuple{2, Float64}}
 	history::AbstractArray{Int64}
 	travelled::Float64
-	function TargetedMigration(start, finish, physenv)
+	function TargetedMigration(start, finish, physenv, axioms)
 		history = [start]
-		return new(start, finish, latlon(physenv), history, 0.0)
+		return new(axioms, start, finish, latlon(physenv), history, 0.0)
 	end
 end
 

@@ -13,6 +13,7 @@ using LinearAlgebra
 export Angle, value, -, polarangle
 export polar, Polar, rand
 export Sigmoid, evaluate
+export Axioms
 
 export AbstractAgent, PassiveAgent, ActiveAgent
 export lifespan, range, flightspeed, resistance, energy
@@ -27,6 +28,7 @@ export erange
 export migrate!
 export probabilities
 
+include("types/axioms.jl")
 include("types/agents.jl")
 include("types/environments.jl")
 include("types/migrations.jl")
