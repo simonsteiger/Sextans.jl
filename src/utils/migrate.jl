@@ -54,5 +54,6 @@ function migrate!(m::T, agent, pe::AbstractEnvironment) where {T<:AbstractMigrat
         i += 1
     end
 
+    @info "say bye"
     return m
 end
