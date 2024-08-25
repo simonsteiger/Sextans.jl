@@ -16,21 +16,28 @@ df = @chain begin
 end
 
 axm = Axioms(
-	max_iter = 30,
-	min_range = 1//3,
+	max_iter = 50,
+	min_range = 1/3,
+	min_iter = 10,
 	default_precision=80,
 	max_range = 5000,
+	local_threshold = 5
 )
 
 env = PhysicalEnvironment(df)
 
-agent = ActiveAgent(5000, 60, 4, missing)
+agent = ActiveAgent(2500, 60, 4, missing)
 
-mig = TargetedMigration(1, 345, env, axm)
+target = 1400
 
-@testset "Polar N" begin
-    include("utils/polar_normal.jl")
+df.numidx = eachindex(df.region)
+
+finish_group = @chain df begin
+	subset(_, "Island Group" => ByRow(x -> x == _[target, "Island Group"]))
+	getproperty(_, :numidx)
 end
+
+mig = TargetedMigration(1, target, finish_group, env, axm)
 
 @testset "Sigmoid" begin
     include("utils/sigmoid.jl")

@@ -9,12 +9,13 @@ mutable struct TargetedMigration <: AbstractMigration
 	axioms::Axioms
 	start::Int64
 	finish::Int64
+	finish_group::Union{Vector{Int64}, Int64}
 	latlon::Vector{NTuple{2, Float64}}
 	history::AbstractArray{Int64}
 	travelled::Float64
-	function TargetedMigration(start, finish, physenv, axioms)
+	function TargetedMigration(start, finish, finish_group, physenv, axioms)
 		history = [start]
-		return new(axioms, start, finish, latlon(physenv), history, 0.0)
+		return new(axioms, start, finish, finish_group, latlon(physenv), history, 0.0)
 	end
 end
 
