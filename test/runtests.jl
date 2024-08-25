@@ -58,7 +58,3 @@ end
 @testset "Migrations" begin
 	include("types/migrations.jl")
 end
-
-using BenchmarkTools
-
-@benchmark migrate!($mig, $agent, $env)
