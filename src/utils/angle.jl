@@ -63,7 +63,7 @@ This method expects x and y to be Tuples of coordinates.
 
 Method for directions.
 """
-function polarangle(x::T, y::T) where {T<:NTuple{2,AbstractFloat}}
+function polarangle(x, y)
     lat1, lon1 = x
     lat2, lon2 = y
     dlat = lat2 - lat1
