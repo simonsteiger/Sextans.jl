@@ -12,10 +12,10 @@ mutable struct TargetedMigration <: AbstractMigration
 	finish_group::Union{Vector{Int64}, Int64}
 	latlon::Vector{NTuple{2, Float64}}
 	history::AbstractArray{Int64}
-	travelled::Float64
+	travelled::Vector{Float64}
 	function TargetedMigration(start, finish, finish_group, physenv, axioms)
 		history = [start]
-		return new(axioms, start, finish, finish_group, latlon(physenv), history, 0.0)
+		return new(axioms, start, finish, finish_group, latlon(physenv), history, [0.0])
 	end
 end
 
