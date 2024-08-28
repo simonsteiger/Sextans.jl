@@ -17,7 +17,7 @@ Returns the probability vector for transitioning from the `current` position to 
 """
 function probabilities(current, env, erange, dir, σ, xx) # effective range used
     μ_rad = deg2rad(dir) # .+ angles(env)[current, :] # currently not wind adjusted
-    κ = 1 / (xx * deg2rad(σ)^2) # change with NS
+    κ = 1 / (deg2rad(xx * σ)^2) # change with NS
     # TODO flip indexing to instead grab an entire column, not a row
     Δ = @view distances(env)[:, current]
     α = @view angles(env)[:, current]
