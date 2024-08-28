@@ -30,7 +30,7 @@ function migrate!(m::AbstractMigration, a::AbstractAgent, e::AbstractEnvironment
         
         eff_range = erange(a, travelled(m), m.axioms.min_range)
         d_to_f = distances(e)[finish(m), current_pos]
-        xx = ccdf(E, d_to_f)
+        xx = ccdf(E, isfinite(d_to_f) ? d_to_f : 0.0)
         p = probabilities(current_pos, e, eff_range, dir, σ, xx)
         target_pos = rand(Categorical(p))
         d = distances(e)[target_pos, current_pos]
