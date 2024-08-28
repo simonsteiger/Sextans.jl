@@ -26,7 +26,7 @@ axm = Axioms(
 
 env = PhysicalEnvironment(df)
 
-agent = ActiveAgent(2500, 60, 4, missing)
+agent = ActiveAgent(3000, 60, 4, missing)
 
 target = 1400
 

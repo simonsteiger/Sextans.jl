@@ -15,7 +15,8 @@ mutable struct TargetedMigration <: AbstractMigration
 	travelled::Vector{Float64}
 	function TargetedMigration(start, finish, finish_group, physenv, axioms)
 		history = [start]
-		return new(axioms, start, finish, finish_group, latlon(physenv), history, [0.0])
+		return new(axioms, start, finish, finish_group, latlon(physenv), history, [])
+		# FIXME instead of initializing at 0.0 travelled, we should start with an empty vector
 	end
 end
 
