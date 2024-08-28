@@ -5,14 +5,19 @@ function alt_adjust_VM(d, r)
     return maximum(pdf.(d, rs))
 end
 
+# start to finish (total journey km T)
+# replace inv(i) with
+# ccdf(Exponential(T/2), d_to_f)
+# mutliply with default precision as is
+
 """
 	probabilities(current, env, erange, dir)
 
 Returns the probability vector for transitioning from the `current` position to the targets stored in `env`. This depends on the effective range `erange` and the direction `dir` of the migration.
 """
-function probabilities(current, env, erange, dir, i, σ) # effective range used
+function probabilities(current, env, erange, dir, σ, xx) # effective range used
     μ_rad = deg2rad(dir) # .+ angles(env)[current, :] # currently not wind adjusted
-    κ = 1 / (inv(i) * deg2rad(σ)^2) # change with NS
+    κ = 1 / (xx * deg2rad(σ)^2) # change with NS
     # TODO flip indexing to instead grab an entire column, not a row
     Δ = @view distances(env)[:, current]
     α = @view angles(env)[:, current]

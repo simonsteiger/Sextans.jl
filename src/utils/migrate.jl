@@ -22,12 +22,16 @@ function migrate!(m::AbstractMigration, a::AbstractAgent, e::AbstractEnvironment
     # adjusted precision of agent proportional to range, larger range is higher precision
     σ = m.axioms.default_precision * evaluate(SigAngl, range(a), m.axioms.max_range)
 
+    E = Exponential(distances(e)[finish(m), start(m)] / 2) # TODO give the number 2 a name, make it an axiom
+
     while i < m.axioms.max_iter && !(arrived(m) || isstuck(m, i))
         dir = direction(m)
         current_pos = current(m)
         
         eff_range = erange(a, travelled(m), m.axioms.min_range)
-        p = probabilities(current_pos, e, eff_range, dir, i, σ)
+        d_to_f = distances(e)[finish(m), current_pos]
+        xx = ccdf(E, d_to_f)
+        p = probabilities(current_pos, e, eff_range, dir, σ, xx)
         target_pos = rand(Categorical(p))
         d = distances(e)[target_pos, current_pos]
         
