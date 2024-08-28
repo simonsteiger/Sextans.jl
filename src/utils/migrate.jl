@@ -29,8 +29,8 @@ function migrate!(m::AbstractMigration, a::AbstractAgent, e::AbstractEnvironment
         eff_range = erange(a, travelled(m), m.axioms.min_range)
         p = probabilities(current_pos, e, eff_range, dir, i, σ)
         target_pos = rand(Categorical(p))
-        d = distances(e)[current_pos, target_pos]
-
+        d = distances(e)[target_pos, current_pos]
+        
         push!(m.travelled, isfinite(d) ? d : 0.0)
         push!(history(m), target_pos)
         
