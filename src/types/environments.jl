@@ -27,16 +27,15 @@ struct PhysicalEnvironment <: AbstractEnvironment
 	winds
 	latlon
 	groups
-	function PhysicalEnvironment(df::DataFrame)
+	function PhysicalEnvironment(df::DataFrame, start)
 		"latlon" in names(df) || throw("`latlon` column not found")
 		"Island Group" in names(df) || throw("`Island Group` column not found")
 		winds = zeros(nrow(df), nrow(df))
 		latlon = df.latlon
 		groups = df[:, "Island Group"]
-		starts = findall(x -> occursin("START", x), groups)
 		distances = map(1:nrow(df)) do i
 			out = _envrow(haversine, i, latlon) ./ 1000
-			out[starts] .= Inf
+			out[start] = Inf
 			return out
 		end |> _unnest
 		angles = map(i -> _envrow(polarangle, i, latlon), 1:nrow(df)) |> _unnest .|> deg2rad

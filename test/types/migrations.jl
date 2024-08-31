@@ -14,5 +14,5 @@ end
 end
 
 @testset "Migrate" begin
-    @test migrate!(mig, agent, env) isa AbstractMigration
+    @test migrate!(mig, agent) isa AbstractMigration
 end

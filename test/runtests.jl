@@ -24,9 +24,7 @@ axm = Axioms(
 	local_threshold = 5
 )
 
-env = PhysicalEnvironment(df)
-
-agent = ActiveAgent(3000, 60, 4, missing)
+agent = ActiveAgent(4000, 60, 4, missing)
 
 target = 1400
 
@@ -37,7 +35,7 @@ finish_group = @chain df begin
 	getproperty(_, :numidx)
 end
 
-mig = TargetedMigration(1, target, finish_group, env, axm)
+mig = TargetedMigration(df, 2, target, axm)
 
 @testset "Sigmoid" begin
     include("utils/sigmoid.jl")
@@ -45,10 +43,6 @@ end
 
 @testset "Angles" begin
     include("utils/angle.jl")
-end
-
-@testset "Environments" begin
-	include("types/environments.jl")
 end
 
 @testset "Agents" begin
