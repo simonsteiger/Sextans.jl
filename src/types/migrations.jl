@@ -7,9 +7,9 @@ abstract type AbstractMigration end
 
 tiedindex(x) = [findfirst(==(v), unique(x)) for v in x]
 
-function get_finish_group(pe, finish)
-	numeric_groups = tiedindex(groups(pe))
-	all_islands = collect(eachindex(groups(pe)))
+function get_finish_group(island_group_vec, finish)
+	numeric_groups = tiedindex(island_group_vec)
+	all_islands = collect(eachindex(island_group_vec))
 	return all_islands[numeric_groups[finish] .== numeric_groups]
 end
 
@@ -25,7 +25,7 @@ mutable struct TargetedMigration <: AbstractMigration
 	function TargetedMigration(df_env, start, finish, axioms)
 		history = [start]
 		env = PhysicalEnvironment(df_env, start)
-		finish_group = get_finish_group(env, finish)
+		finish_group = get_finish_group(groups(env), finish)
 		return new(axioms, env, start, finish, finish_group, latlon(env), history, [])
 	end
 end
