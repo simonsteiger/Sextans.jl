@@ -17,7 +17,6 @@ end
 
 axm = Axioms(
 	max_iter = 50,
-	min_range = 1/3,
 	min_iter = 10,
 	default_precision=120,
 	max_range = 5000,

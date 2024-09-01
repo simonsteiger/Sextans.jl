@@ -43,6 +43,10 @@ struct PhysicalEnvironment <: AbstractEnvironment
 	end
 end
 
+# TODO create some sort of ProtoEnvironment that contains all matrices ready except the Infinity-modified ones
+# Another way would be to think about a different way of resolving the infinity problem
+# That would have to go into probabilities, but that's risky for slowdown and introducing actual errors
+
 latlon(x::PhysicalEnvironment) = x.latlon
 
 """
