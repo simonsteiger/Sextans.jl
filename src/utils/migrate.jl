@@ -16,30 +16,28 @@ arrived(m) = m isa TargetedMigration ? current(m) in m.finish_group : false
 
 Returns the simulated migration of type `T` of `agent` in physical environment `pe`.
 """
-function migrate!(m::AbstractMigration, a::AbstractAgent, e::AbstractEnvironment)
-    i = 1
-
+function migrate!(mig::AbstractMigration, agent::AbstractAgent)
     # adjusted precision of agent proportional to range, larger range is higher precision
-    σ = m.axioms.default_precision * evaluate(SigAngl, range(a), m.axioms.max_range)
-
-    E = Exponential(distances(e)[finish(m), start(m)] / 2) # TODO give the number 2 a name, make it an axiom
-
-    while i < m.axioms.max_iter && !(arrived(m) || isstuck(m, i))
-        dir = direction(m)
-        current_pos = current(m)
+    σ = mig.axioms.default_precision * evaluate(SigAngl, range(agent), mig.axioms.max_range)
+    E = Exponential(distances(mig.env)[finish(mig), start(mig)] / 2) # TODO give the number 2 a name, make it an axiom
+    i = 1
+    
+    while i < mig.axioms.max_iter && !(arrived(mig) || isstuck(mig, i))
+        dir = direction(mig)
+        current_pos = current(mig)
         
-        eff_range = erange(a, travelled(m), m.axioms.min_range)
-        d_to_f = distances(e)[finish(m), current_pos]
+        eff_range = erange(agent, travelled(mig), mig.axioms.min_range)
+        d_to_f = distances(mig.env)[finish(mig), current_pos]
         xx = isfinite(d_to_f) ? cdf(E, d_to_f) : 1.0
-        p = probabilities(current_pos, e, eff_range, dir, σ, xx)
+        p = probabilities(current_pos, mig.env, eff_range, dir, σ, xx)
         target_pos = rand(Categorical(p))
-        d = distances(e)[target_pos, current_pos]
+        d = distances(mig.env)[target_pos, current_pos]
         
-        push!(m.travelled, isfinite(d) ? d : 0.0)
-        push!(history(m), target_pos)
+        push!(mig.travelled, isfinite(d) ? d : 0.0)
+        push!(history(mig), target_pos)
         
         i += 1
     end
 
-    return m
+    return mig
 end

@@ -13,6 +13,11 @@ end
     @test !(Angle(Sextans.direction(mig)) isa DomainError)
 end
 
+@testset "Finish group" begin
+    @test Sextans.tiedindex(["C", "C", "A", "B"]) == [1, 1, 2, 3]
+    Sextans.get_finish_group(["C", "C", "B", "A"], 1) == [1, 2]
+end
+
 @testset "Migrate" begin
-    @test migrate!(mig, agent, env) isa AbstractMigration
+    @test migrate!(mig, agent) isa AbstractMigration
 end

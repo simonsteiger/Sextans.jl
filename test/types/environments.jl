@@ -1,3 +1,4 @@
+env = PhysicalEnvironment(df, target)
 
 @testset "Constructor" begin
     @test env isa AbstractEnvironment
