@@ -23,11 +23,11 @@ axm = Axioms(
 	local_threshold = 5
 )
 
-agent = ActiveAgent(4000, 60, 4, missing)
+agent = ActiveAgent(6000, 60, 4, missing)
 
 target = 1400
 
-mig = TargetedMigration(df, 2, target, axm)
+mig = TargetedMigration(df, 1, target, axm)
 
 @testset "Sigmoid" begin
     include("utils/sigmoid.jl")

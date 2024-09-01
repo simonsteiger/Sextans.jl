@@ -22,11 +22,12 @@ mutable struct TargetedMigration <: AbstractMigration
 	latlon::Vector{NTuple{2, Float64}}
 	history::AbstractArray{Int64}
 	travelled::Vector{Float64}
+	energy::Vector{Float64}
 	function TargetedMigration(df_env, start, finish, axioms)
 		history = [start]
 		env = PhysicalEnvironment(df_env, start)
 		finish_group = get_finish_group(groups(env), finish)
-		return new(axioms, env, start, finish, finish_group, latlon(env), history, [])
+		return new(axioms, env, start, finish, finish_group, latlon(env), history, [], [1.0])
 	end
 end
 

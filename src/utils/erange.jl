@@ -3,8 +3,8 @@
 
 Returns the effective range of the `agent` given the distance it has `travelled`.
 """
-function erange(agent::ActiveAgent, travelled)
-	return range(agent) - sum(travelled)
+function erange(agent::ActiveAgent, current_energy)
+	return range(agent) * current_energy
 end
 
 # energy for max non-stop travel distance
