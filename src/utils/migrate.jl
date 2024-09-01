@@ -11,6 +11,8 @@ end
 
 arrived(m) = m isa TargetedMigration ? current(m) in m.finish_group : false
 
+to_finite(x) = isfinite(x) ? x : zero(x)
+
 """
 	migrate!(m::AbstractMigration, a::AbstractAgent, pe::AbstractEnvironment)
 
@@ -25,17 +27,21 @@ function migrate!(mig::AbstractMigration, agent::AbstractAgent)
     while i < mig.axioms.max_iter && !(arrived(mig) || isstuck(mig, i))
         dir = direction(mig)
         current_pos = current(mig)
-        
-        eff_range = erange(agent, travelled(mig), mig.axioms.min_range)
+
+        eff_range = erange(agent, mig.energy[end])
         d_to_f = distances(mig.env)[finish(mig), current_pos]
         xx = isfinite(d_to_f) ? cdf(E, d_to_f) : 1.0
         p = probabilities(current_pos, mig.env, eff_range, dir, σ, xx)
         target_pos = rand(Categorical(p))
         d = distances(mig.env)[target_pos, current_pos]
-        
-        push!(mig.travelled, isfinite(d) ? d : 0.0)
+
+        drain = minimum([1.0, to_finite(d) / range(agent)])
+        push!(mig.energy, minimum([1.0, mig.energy[end] - drain + 0.2])) # mig.env.axioms.hab_qual[target_pos] --> TODO make a vector with a value for each island to represent its habitat quality
+        push!(mig.travelled, to_finite(d))
         push!(history(mig), target_pos)
         
+        @info "iter $i -- erange: $eff_range -- energy: $(mig.energy[end]) -- d: $(to_finite(d)) drain: $drain"
+
         i += 1
     end
 

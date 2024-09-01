@@ -19,7 +19,7 @@ function probabilities(current, env, erange, dir, σ, xx) # effective range used
     κ = 1 / (deg2rad(xx * σ)^2)
     Δ = @view distances(env)[:, current]
     α = @view angles(env)[:, current]
-    p_Δ = evaluate(SigDist, Δ, erange)
+    p_Δ = Δ .<= erange
     VM = VonMises.(dir, κ)
     p_α = alt_adjust_VM.(VM, α) ./ pdf.(VM, mean.(VM))
     p = p_α .* p_Δ
@@ -31,3 +31,5 @@ function probabilities(current, env, erange, dir, σ, xx) # effective range used
     end
     return normalize(p, 1)
 end
+
+# erange / range
