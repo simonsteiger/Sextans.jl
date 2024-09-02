@@ -18,8 +18,8 @@ struct Sigmoid
     slope::Float64
     xoffset::Float64
     function Sigmoid(ymax, yrange, slope, xoffset)
-        yrange > zero(yrange) || throw(DomainError("`yrange` must be positive"))
-        xoffset > zero(xoffset) || throw(DomainError("`xoffset` must be positive"))
+        yrange > zero(yrange) || throw(DomainError(yrange, "`yrange` must be positive"))
+        xoffset > zero(xoffset) || throw(DomainError(xoffset, "`xoffset` must be positive"))
         return new(ymax, yrange, slope, xoffset)
     end
 end

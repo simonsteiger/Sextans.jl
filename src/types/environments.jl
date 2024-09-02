@@ -40,8 +40,9 @@ struct PhysicalEnvironment <: AbstractEnvironment
 	distances::Matrix{Float64}
 	angles::Matrix{Float64}
 	function PhysicalEnvironment(proto::AbstractEnvironment, start::Int64)
-		proto.invalid_target[start] = true
-		proto.distances[proto.invalid_target, :] .= Inf
+		xx = copy(proto.invalid_target)
+		xx[start] = true
+		proto.distances[xx, :] .= Inf
 		return new(proto.distances, proto.angles)
 	end
 end
