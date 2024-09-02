@@ -7,10 +7,9 @@ abstract type AbstractMigration end
 
 tiedindex(x) = [findfirst(==(v), unique(x)) for v in x]
 
-function get_finish_group(island_group_vec, finish)
-	numeric_groups = tiedindex(island_group_vec)
-	all_islands = collect(eachindex(island_group_vec))
-	return all_islands[numeric_groups[finish] .== numeric_groups]
+function get_finish_group(island_groups, finish)
+	all_islands = collect(eachindex(island_groups))
+	return all_islands[island_groups[finish] .== island_groups]
 end
 
 mutable struct TargetedMigration <: AbstractMigration
@@ -18,16 +17,15 @@ mutable struct TargetedMigration <: AbstractMigration
 	env::PhysicalEnvironment
 	start::Int64
 	finish::Int64
-	finish_group::Union{Vector{Int64}, Int64}
-	latlon::Vector{NTuple{2, Float64}}
+	finish_group::Union{AbstractArray{Int64}, Int64}
 	history::AbstractArray{Int64}
 	travelled::Vector{Float64}
 	energy::Vector{Float64}
-	function TargetedMigration(df_env, start, finish, axioms)
+	function TargetedMigration(proto, start, finish, axioms)
 		history = [start]
-		env = PhysicalEnvironment(df_env, start)
-		finish_group = get_finish_group(groups(env), finish)
-		return new(axioms, env, start, finish, finish_group, latlon(env), history, [], [1.0])
+		env = PhysicalEnvironment(proto, start)
+		finish_group = get_finish_group(proto.groups, finish)
+		return new(axioms, env, start, finish, finish_group, history, [], [1.0])
 	end
 end
 

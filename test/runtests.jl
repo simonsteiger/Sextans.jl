@@ -13,6 +13,8 @@ df = @chain begin
 	CSV.read(_, DataFrame)
 	transform(_, [:Latitude, :Longitude] => ByRow((x,y) -> (x, y)) => :latlon)
 	dropmissing(_)
+	subset(_, :Basin => ByRow(x -> occursin(r"india", lowercase(x))))
+	transform(_, :region => ByRow(x -> occursin(r"START", x) ? true : false) => :invalid_target)
 end
 
 axm = Axioms(
@@ -25,9 +27,11 @@ axm = Axioms(
 
 agent = ActiveAgent(6000, 60, 4, missing)
 
-target = 1400
+target = 220
 
-mig = TargetedMigration(df, 1, target, axm)
+proto = ProtoEnvironment(df)
+
+mig = TargetedMigration(proto, 1, target, axm)
 
 @testset "Sigmoid" begin
     include("utils/sigmoid.jl")
