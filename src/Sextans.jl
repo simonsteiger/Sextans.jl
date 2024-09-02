@@ -18,8 +18,8 @@ export Axioms
 export AbstractAgent, PassiveAgent, ActiveAgent
 export lifespan, range, flightspeed, resistance, energy
 
-export AbstractEnvironment, PhysicalEnvironment
-export latlon, winds, angles, distances, groups
+export AbstractEnvironment, ProtoEnvironment, PhysicalEnvironment
+export angles, distances
 
 export AbstractMigration, TargetedMigration
 export start, finish, travelled, history, current

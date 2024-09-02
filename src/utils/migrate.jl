@@ -39,8 +39,6 @@ function migrate!(mig::AbstractMigration, agent::AbstractAgent)
         push!(mig.energy, minimum([1.0, mig.energy[end] - drain + 0.2])) # mig.env.axioms.hab_qual[target_pos] --> TODO make a vector with a value for each island to represent its habitat quality
         push!(mig.travelled, to_finite(d))
         push!(history(mig), target_pos)
-        
-        @info "iter $i -- erange: $eff_range -- energy: $(mig.energy[end]) -- d: $(to_finite(d)) drain: $drain"
 
         i += 1
     end

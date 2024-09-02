@@ -17,44 +17,34 @@ end
 _envrow(f, i, col) = f.(Ref(col[i]), col)
 
 """
-	PhysicalEnvironment
+	ProtoEnvironment
 
-Store data about the observed environmental conditions `distances`, `angles`, and `wind` between atolls.
+Preliminarily store data about the physical environment.
 """
-struct PhysicalEnvironment <: AbstractEnvironment
-	distances
-	angles
-	winds
-	latlon
-	groups
-	function PhysicalEnvironment(df::DataFrame, start)
-		"latlon" in names(df) || throw("`latlon` column not found")
-		"Island Group" in names(df) || throw("`Island Group` column not found")
-		winds = zeros(nrow(df), nrow(df))
-		latlon = df.latlon
-		groups = df[:, "Island Group"]
-		distances = map(1:nrow(df)) do i
-			out = _envrow(haversine, i, latlon) ./ 1000
-			out[start] = Inf
-			return out
-		end |> _unnest
-		angles = map(i -> _envrow(polarangle, i, latlon), 1:nrow(df)) |> _unnest .|> deg2rad
-		return new(distances, angles, winds, latlon, groups)
+struct ProtoEnvironment <: AbstractEnvironment
+	distances::Matrix{Float64}
+	angles::Matrix{Float64}
+	groups::Vector{Int64}
+	invalid_target::Vector{Bool}
+	function ProtoEnvironment(df::DataFrame)
+		"invalid_target" in names(df) || throw(error("`df` must contain column `invalid_target`"))
+		"Island Group" in names(df) || throw(error("`df` must contain column `Island Group`"))
+		distances = map(x -> _envrow(haversine, x, df.latlon) ./ 1000, 1:nrow(df)) |> _unnest
+		angles = map(i -> _envrow(polarangle, i, df.latlon), 1:nrow(df)) |> _unnest .|> deg2rad
+		groups = tiedindex(df[:, "Island Group"])
+		return new(distances, angles, groups, df.invalid_target)
 	end
 end
 
-# TODO create some sort of ProtoEnvironment that contains all matrices ready except the Infinity-modified ones
-# Another way would be to think about a different way of resolving the infinity problem
-# That would have to go into probabilities, but that's risky for slowdown and introducing actual errors
-
-latlon(x::PhysicalEnvironment) = x.latlon
-
-"""
-	winds(x::PhysicalEnvironment)
-
-Return the `winds` field of a PhysicalEnvironment `x`. 
-"""
-winds(x::PhysicalEnvironment) = x.winds
+struct PhysicalEnvironment <: AbstractEnvironment
+	distances::Matrix{Float64}
+	angles::Matrix{Float64}
+	function PhysicalEnvironment(proto::AbstractEnvironment, start::Int64)
+		proto.invalid_target[start] = true
+		proto.distances[proto.invalid_target, :] .= Inf
+		return new(proto.distances, proto.angles)
+	end
+end
 
 """
 	angles(x::AbstractEnvironment)
@@ -69,5 +59,3 @@ angles(x::AbstractEnvironment) = x.angles
 Return the `distances` field of an AbstractEnvironment `x`. 
 """
 distances(x::AbstractEnvironment) = x.distances
-
-groups(x::PhysicalEnvironment) = x.groups
