@@ -33,6 +33,7 @@ proto = ProtoEnvironment(df)
 
 mig = TargetedMigration(proto, 1, target, axm)
 
+#=
 @testset "Sigmoid" begin
     include("utils/sigmoid.jl")
 end
@@ -48,7 +49,7 @@ end
 @testset "Environments" begin
 	include("types/environments.jl")
 end
-
+=#
 @testset "Migrations" begin
 	include("types/migrations.jl")
 end

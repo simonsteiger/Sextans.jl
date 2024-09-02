@@ -19,10 +19,11 @@ to_finite(x) = isfinite(x) ? x : zero(x)
 Returns the simulated migration of type `T` of `agent` in physical environment `pe`.
 """
 function migrate!(mig::AbstractMigration, agent::AbstractAgent)
-    # adjusted precision of agent proportional to range, larger range is higher precision
-    σ = mig.axioms.default_precision * evaluate(SigAngl, range(agent), mig.axioms.max_range)
     E = Exponential(distances(mig.env)[finish(mig), start(mig)] / 2) # TODO give the number 2 a name, make it an axiom
     i = 1
+
+    total_distance = distances(mig.env)[finish(mig), start(mig)]
+    SigPrecision = Sigmoid(1, 0.99, 10, range(agent) / total_distance)
     
     while i < mig.axioms.max_iter && !(arrived(mig) || isstuck(mig, i))
         dir = direction(mig)
@@ -30,6 +31,9 @@ function migrate!(mig::AbstractMigration, agent::AbstractAgent)
 
         eff_range = erange(agent, mig.energy[end])
         d_to_f = distances(mig.env)[finish(mig), current_pos]
+
+        σ = mig.axioms.default_precision * evaluate(SigPrecision, d_to_f, total_distance)
+
         xx = isfinite(d_to_f) ? cdf(E, d_to_f) : 1.0
         p = probabilities(current_pos, mig.env, eff_range, dir, σ, xx)
         target_pos = rand(Categorical(p))
