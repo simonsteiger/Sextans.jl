@@ -32,7 +32,7 @@ function migrate!(mig::AbstractMigration, agent::AbstractAgent)
         eff_range = erange(agent, mig.energy[end])
         d_to_f = distances(mig.env)[finish(mig), current_pos]
 
-        σ = mig.axioms.default_precision * evaluate(SigPrecision, d_to_f, total_distance)
+        σ = mig.axioms.default_precision * evaluate(SigPrecision, d_to_f, 2 * range(agent))
 
         xx = isfinite(d_to_f) ? cdf(E, d_to_f) : 1.0
         p = probabilities(current_pos, mig.env, eff_range, dir, σ, xx)
