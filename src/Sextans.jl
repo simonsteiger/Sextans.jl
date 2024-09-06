@@ -18,7 +18,7 @@ export Axioms
 export AbstractAgent, PassiveAgent, ActiveAgent
 export lifespan, range, flightspeed, resistance, energy
 
-export AbstractEnvironment, ProtoEnvironment, PhysicalEnvironment
+export AbstractEnvironment, ProtoEnvironment, GroupEnvironment, IslandEnvironment
 export angles, distances
 
 export AbstractMigration, TargetedMigration

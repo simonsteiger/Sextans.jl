@@ -25,26 +25,42 @@ struct ProtoEnvironment <: AbstractEnvironment
 	distances::Matrix{Float64}
 	angles::Matrix{Float64}
 	groups::Vector{Int64}
-	invalid_target::Vector{Bool}
-	function ProtoEnvironment(df::DataFrame)
-		"invalid_target" in names(df) || throw(error("`df` must contain column `invalid_target`"))
-		"Island Group" in names(df) || throw(error("`df` must contain column `Island Group`"))
-		distances = map(x -> _envrow(haversine, x, df.latlon) ./ 1000, 1:nrow(df)) |> _unnest
-		angles = map(i -> _envrow(polarangle, i, df.latlon), 1:nrow(df)) |> _unnest .|> deg2rad
-		groups = tiedindex(df[:, "Island Group"])
-		return new(distances, angles, groups, df.invalid_target)
+	function ProtoEnvironment(df_rows, df_cols)
+		distances = map(df_rows.latlon) do group
+            haversine.(Ref(group), df_cols.latlon) ./ 1000
+        end |> x -> transpose(reduce(hcat, x))
+        angles = map(df_rows.latlon) do group
+            deg2rad.(polarangle.(Ref(group), df_cols.latlon))
+        end |> x -> transpose(reduce(hcat, x))
+		# Use cols because that's always islands
+		groups = tiedindex(df_cols[:, "Island Group"])
+		return new(distances, angles, groups)
 	end
 end
 
-struct PhysicalEnvironment <: AbstractEnvironment
-	distances::Matrix{Float64}
+# Group-level "invalid_target" are only start locations
+struct GroupEnvironment <: AbstractEnvironment
+    distances::Matrix{Float64}
 	angles::Matrix{Float64}
-	function PhysicalEnvironment(proto::AbstractEnvironment, start::Int64)
-		xx = copy(proto.invalid_target)
-		xx[start] = true
-		proto.distances[xx, :] .= Inf
-		return new(proto.distances, proto.angles)
-	end
+    function GroupEnvironment(env::ProtoEnvironment)
+		# Can add invalidate step here
+		# xx = copy(env.invalid_target)
+		# xx[start] = true
+        return new(copy(env.distances), copy(env.angles))
+    end
+end
+
+# Try no invalid targets on Island level
+struct IslandEnvironment <: AbstractEnvironment
+    distances::Matrix{Float64}
+	angles::Matrix{Float64}
+	groups::Vector{Int64}
+    function IslandEnvironment(env::ProtoEnvironment)
+		# Can add invalidate step here
+		# xx = copy(env.invalid_target)
+		# xx[start] = true
+        return new(copy(env.distances), copy(env.angles), copy(env.groups))
+    end
 end
 
 """

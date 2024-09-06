@@ -8,13 +8,22 @@ using CSV
 using DataFrames
 using Chain
 
-df = @chain begin
+
+df_islands = @chain begin
 	joinpath(@__DIR__, "data", "environment.csv")
 	CSV.read(_, DataFrame)
+    subset(_, :Basin => ByRow(x -> occursin(r"pacific", lowercase(x))))
+    transform(_, [:Latitude, :Longitude] => ByRow((x,y) -> (x, y)) => :latlon)
+end
+
+df_groups = @chain df_islands begin
+	transform(_, :Longitude => ByRow(x -> x < 0 ? x + 360 : x) => identity)
+	subset(_, :Basin => ByRow(x -> occursin(r"pacific", lowercase(x))))
+	groupby(_, "Island Group")
+	combine(_, Cols(r"itude") .=> mean => identity)
+	transform(_, :Longitude => ByRow(x -> x > 180 ? x - 360 : x) => identity)
+	transform(_, "Island Group" => ByRow(x -> occursin(r"START", x) ? true : false) => :invalid_target)
 	transform(_, [:Latitude, :Longitude] => ByRow((x,y) -> (x, y)) => :latlon)
-	dropmissing(_)
-	subset(_, :Basin => ByRow(x -> occursin(r"india", lowercase(x))))
-	transform(_, :region => ByRow(x -> occursin(r"START", x) ? true : false) => :invalid_target)
 end
 
 axm = Axioms(
@@ -25,13 +34,14 @@ axm = Axioms(
 	local_threshold = 5
 )
 
-agent = ActiveAgent(6000, 60, 4, missing)
+agent = ActiveAgent(4000, 60, 4, missing)
 
-target = 220
+target = 4
 
-proto = ProtoEnvironment(df)
+proto_group = ProtoEnvironment(df_groups, df_islands)
+proto_island = ProtoEnvironment(df_islands, df_islands)
 
-mig = TargetedMigration(proto, 1, target, axm)
+mig = TargetedMigration(proto_group, proto_island, 1, target, axm)
 
 #=
 @testset "Sigmoid" begin
@@ -53,3 +63,6 @@ end
 @testset "Migrations" begin
 	include("types/migrations.jl")
 end
+
+# TODO why does this not stop? target = 4 ... didn't code target properly?
+df_islands[history(mig), :]
