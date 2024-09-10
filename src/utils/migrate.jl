@@ -9,7 +9,7 @@ function isstuck(m, i)
     return m.axioms.local_threshold >= length(unique(last(history(m), 10)))
 end
 
-arrived(m) = m isa TargetedMigration ? current(m) in m.finish_group : false
+arrived(m, current_group) = current_group == m.finish_group
 
 to_finite(x) = isfinite(x) ? x : zero(x)
 
@@ -19,30 +19,40 @@ to_finite(x) = isfinite(x) ? x : zero(x)
 Returns the simulated migration of type `T` of `agent` in physical environment `pe`.
 """
 function migrate!(mig::AbstractMigration, agent::AbstractAgent)
-    E = Exponential(distances(mig.env)[finish(mig), start(mig)] / 2) # TODO give the number 2 a name, make it an axiom
+    E = Exponential(distances(mig.env_group)[finish(mig), start(mig)] / 2) # TODO give the number 2 a name, make it an axiom
     i = 1
 
-    total_distance = distances(mig.env)[finish(mig), start(mig)]
+    total_distance = distances(mig.env_group)[finish(mig), start(mig)]
     SigPrecision = Sigmoid(1, 0.99, 10, range(agent) / total_distance)
+
+    group_history = [mig.env_island.groups[start(mig)]] # maybe there's a better way... track this, too?
     
-    while i < mig.axioms.max_iter && !(arrived(mig) || isstuck(mig, i))
+    while i < mig.axioms.max_iter && !(arrived(mig, group_history[end]) || isstuck(mig, i))
         dir = direction(mig)
-        current_pos = current(mig)
+        current_island = current(mig)
 
         eff_range = erange(agent, mig.energy[end])
-        d_to_f = distances(mig.env)[finish(mig), current_pos]
+        d_to_f = distances(mig.env_group)[finish(mig), current_island]
 
         σ = mig.axioms.default_precision * evaluate(SigPrecision, d_to_f, 2 * range(agent))
 
-        xx = isfinite(d_to_f) ? cdf(E, d_to_f) : 1.0
-        p = probabilities(current_pos, mig.env, eff_range, dir, σ, xx)
-        target_pos = rand(Categorical(p))
-        d = distances(mig.env)[target_pos, current_pos]
+        prox_scaler = isfinite(d_to_f) ? cdf(E, d_to_f) : 1.0
+
+        p_group = probabilities(current_island, group_history[end], mig.env_group, eff_range, dir, σ, prox_scaler)
+        target_group = rand(Categorical(p_group))
+        push!(group_history, target_group)
+
+        # second probabilities step
+        target_group_bv = target_group .== mig.env_island.groups
+        target_indices = eachindex(mig.env_island.groups)[target_group_bv]
+        p_island = probabilities(current_island, target_group_bv, mig.env_island, eff_range, dir, σ, prox_scaler)
+        target_island = target_indices[rand(Categorical(p_island))]
+        d = distances(mig.env_island)[target_island, current_island]
 
         drain = minimum([1.0, to_finite(d) / range(agent)])
         push!(mig.energy, minimum([1.0, mig.energy[end] - drain + 0.2])) # mig.env.axioms.hab_qual[target_pos] --> TODO make a vector with a value for each island to represent its habitat quality
         push!(mig.travelled, to_finite(d))
-        push!(history(mig), target_pos)
+        push!(history(mig), target_island)
 
         i += 1
     end

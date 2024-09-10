@@ -7,35 +7,33 @@ abstract type AbstractMigration end
 
 tiedindex(x) = [findfirst(==(v), unique(x)) for v in x]
 
-function get_finish_group(island_groups, finish)
+function get_group(island_groups, idx)
 	all_islands = collect(eachindex(island_groups))
-	return all_islands[island_groups[finish] .== island_groups]
+	return all_islands[island_groups[idx] .== island_groups]
 end
 
 mutable struct TargetedMigration <: AbstractMigration
 	axioms::Axioms
-	env::PhysicalEnvironment
-	start::Int64
-	finish::Int64
-	finish_group::Union{AbstractArray{Int64}, Int64}
+	env_group::GroupEnvironment
+	env_island::IslandEnvironment
+	start_island::Int64
+	finish_group::Int64
 	history::AbstractArray{Int64}
 	travelled::Vector{Float64}
 	energy::Vector{Float64}
-	function TargetedMigration(proto, start, finish, axioms)
-		history = [start]
-		env = PhysicalEnvironment(proto, start)
-		finish_group = get_finish_group(proto.groups, finish)
-		return new(axioms, env, start, finish, finish_group, history, [], [1.0])
+	function TargetedMigration(proto_group, proto_island, start_island, finish_group, axioms)
+		history = [start_island]
+		env_group = GroupEnvironment(proto_group)
+		env_island = IslandEnvironment(proto_island)
+		return new(axioms, env_group, env_island, start_island, finish_group, history, [], [1.0])
 	end
 end
 
-start(x::AbstractMigration) = x.start
+start(x::AbstractMigration) = x.start_island
 
-finish(x::TargetedMigration) = x.finish
+finish(x::TargetedMigration) = x.finish_group
 
-latlon(x::TargetedMigration, i) = x.latlon[i]
-
-direction(x::TargetedMigration) = angles(x.env)[finish(x), current(x)]
+direction(x::TargetedMigration) = angles(x.env_group)[finish(x), current(x)]
 
 """
 	travelled(x::AbstractMigration)
