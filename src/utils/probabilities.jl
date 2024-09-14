@@ -17,8 +17,9 @@ const candidates = (:)
 
 Returns the probability vector for transitioning from the `current` position to the targets stored in `env`. This depends on the effective range `erange` and the direction `dir` of the migration.
 """
-function probabilities(current_island, current_group, env::GroupEnvironment, erange, dir, σ, xx) # effective range used
-    κ = 1 / (deg2rad(xx * σ)^2)
+function probabilities(current_island, current_group, env::GroupEnvironment, erange, dir, σ, prox_scaler)
+    τ = deg2rad(prox_scaler * σ)^2
+    κ = 1 / maximum([τ, 1e-9])
     Δ = mig_index(distances(env), from=current_island, to=candidates)
     α = mig_index(angles(env), from=current_island, to=candidates)
     p_Δ = Δ .<= erange
@@ -36,8 +37,9 @@ function probabilities(current_island, current_group, env::GroupEnvironment, era
     return normalize(p, 1)
 end
 
-function probabilities(current_island, candidate_islands, env::IslandEnvironment, erange, dir, σ, prox_scaler) # effective range used
-    κ = 1 / (deg2rad(prox_scaler * σ)^2)
+function probabilities(current_island, candidate_islands, env::IslandEnvironment, erange, dir, σ, prox_scaler)
+    τ = deg2rad(prox_scaler * σ)^2
+    κ = 1 / maximum([τ, 1e-9])
     Δ = mig_index(distances(env), from=current_island, to=candidate_islands)
     α = mig_index(angles(env), from=current_island, to=candidate_islands)
     p_Δ = Δ .<= erange
@@ -50,17 +52,21 @@ function probabilities(current_island, candidate_islands, env::IslandEnvironment
     xx[candidate_islands] .= p
 
     out = normalize(xx, 1)
+    !all(isnan, out) && return out
 
+    p = zeros(size(distances(env), 1))
+    p[current_island] = oneunit(eltype(p))
+    return p
+
+    #=
     # @info "cur not-in cand $(current_island ∉ candidate_islands)"
     current_island ∉ candidate_islands && return out
     
     stayed = rand(Bernoulli(prod(1 .- p)))
-    @info "stayed? $stayed"
     !stayed && return out
 
     p = zeros(size(distances(env), 1))
-    @info length(p), current_island
     p[current_island] = oneunit(eltype(p))
-    @info sum(p)
     return p
+    =#
 end
