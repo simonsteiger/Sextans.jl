@@ -36,7 +36,7 @@ axm = Axioms(
 
 agent = ActiveAgent(4000, 60, 4, missing)
 
-target = 28
+target = 4
 
 proto_group = ProtoEnvironment(df_groups, df_islands)
 proto_island = ProtoEnvironment(df_islands, df_islands)

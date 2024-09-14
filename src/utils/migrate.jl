@@ -31,7 +31,6 @@ function migrate!(mig::AbstractMigration, agent::AbstractAgent)
     
     while i < mig.axioms.max_iter && !(arrived(mig, group_history[end]) || isstuck(mig, i))
         dir = direction(mig)
-        @info rad2deg(dir)
         current_island = current(mig)
 
         eff_range = erange(agent, mig.energy[end])
@@ -48,8 +47,11 @@ function migrate!(mig::AbstractMigration, agent::AbstractAgent)
         # second probabilities step
         target_group_bv = target_group .== mig.env_island.groups
         target_indices = eachindex(mig.env_island.groups)[target_group_bv]
-        p_island = probabilities(current_island, target_group_bv, mig.env_island, eff_range, dir, σ, prox_scaler)
-        target_island = target_indices[rand(Categorical(p_island))]
+        #=@info "current: $current_island"
+        @info "targets: $target_indices"
+        @info "cur in tar? $(current_island in target_indices)"=#
+        p_island = probabilities(current_island, target_indices, mig.env_island, eff_range, dir, σ, prox_scaler)
+        target_island = rand(Categorical(p_island))
         d_current_target = mig_index(distances(mig.env_island), from=current_island, to=target_island)
 
         drain = minimum([1.0, to_finite(d_current_target) / range(agent)])
