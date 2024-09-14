@@ -36,12 +36,12 @@ axm = Axioms(
 
 agent = ActiveAgent(4000, 60, 4, missing)
 
-target = 4
+target = 28
 
 proto_group = ProtoEnvironment(df_groups, df_islands)
 proto_island = ProtoEnvironment(df_islands, df_islands)
 
-mig = TargetedMigration(proto_group, proto_island, 1, target, axm)
+mig = TargetedMigration(proto_group, proto_island, 2, target, axm)
 
 #=
 @testset "Sigmoid" begin

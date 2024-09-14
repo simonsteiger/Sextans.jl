@@ -33,7 +33,9 @@ start(x::AbstractMigration) = x.start_island
 
 finish(x::TargetedMigration) = x.finish_group
 
-direction(x::TargetedMigration) = angles(x.env_group)[finish(x), current(x)]
+mig_index(X; from, to) = X[to, from]
+
+direction(x::TargetedMigration) = mig_index(angles(x.env_group), from=current(x), to=finish(x))
 
 """
 	travelled(x::AbstractMigration)
