@@ -34,14 +34,14 @@ axm = Axioms(
 	local_threshold = 5
 )
 
-agent = ActiveAgent(4000, 60, 4, missing)
+agent = ActiveAgent(4500, 60, 4, missing)
 
-target = 4
+targets = collect(3:nrow(df_groups))
 
 proto_group = ProtoEnvironment(df_groups, df_islands)
 proto_island = ProtoEnvironment(df_islands, df_islands)
 
-mig = TargetedMigration(proto_group, proto_island, 2, target, axm)
+migs = [TargetedMigration(proto_group, proto_island, start, target, axm) for start in [1, 2], target in targets]
 
 #=
 @testset "Sigmoid" begin
@@ -63,6 +63,3 @@ end
 @testset "Migrations" begin
 	include("types/migrations.jl")
 end
-
-# TODO why does this not stop? target = 4 ... didn't code target properly?
-df_islands[history(mig), :]
