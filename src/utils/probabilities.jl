@@ -26,9 +26,11 @@ function probabilities(current_island, current_group, env::GroupEnvironment, era
     p_α = alt_adjust_VM.(VM, α) ./ pdf.(VM, mean.(VM))
     p = p_α .* p_Δ
     stayed = rand(Bernoulli(prod(1 .- p)))
+    # @info "group stayed? $stayed"
     if stayed
         p = zero(p)
         p[current_group] = oneunit(eltype(p))
+        # @info p
         return p
     end
     return normalize(p, 1)
@@ -42,12 +44,23 @@ function probabilities(current_island, candidate_islands, env::IslandEnvironment
     VM = VonMises.(dir, κ)
     p_α = alt_adjust_VM.(VM, α) ./ pdf.(VM, mean.(VM))
     p = p_α .* p_Δ
-    out = normalize(p, 1)
-    # stayed = rand(Bernoulli(prod(1 .- p)))
-    # if stayed
-    #     p = zero(p)
-    #     p[current_island] = 1
-    #     return p
-    # end
-    return out
+    # @info "island: $p"
+
+    xx = zeros(size(distances(env), 1))
+    xx[candidate_islands] .= p
+
+    out = normalize(xx, 1)
+
+    # @info "cur not-in cand $(current_island ∉ candidate_islands)"
+    current_island ∉ candidate_islands && return out
+    
+    stayed = rand(Bernoulli(prod(1 .- p)))
+    @info "stayed? $stayed"
+    !stayed && return out
+
+    p = zeros(size(distances(env), 1))
+    @info length(p), current_island
+    p[current_island] = oneunit(eltype(p))
+    @info sum(p)
+    return p
 end
