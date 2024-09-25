@@ -43,6 +43,10 @@ proto_island = ProtoEnvironment(df_islands, df_islands)
 
 migs = [TargetedMigration(proto_group, proto_island, start, target, axm) for start in [1, 2], target in targets]
 
+@testset "Migrations" begin
+	include("types/migrations.jl")
+end
+
 #=
 @testset "Sigmoid" begin
     include("utils/sigmoid.jl")
@@ -60,6 +64,3 @@ end
 	include("types/environments.jl")
 end
 =#
-@testset "Migrations" begin
-	include("types/migrations.jl")
-end

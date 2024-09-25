@@ -1,10 +1,3 @@
-# TODO put these into an Axioms type
-const default_precision = 120
-const max_range = 5000
-SigAngl = Sigmoid(1, 0.95, -4, 0.5)
-SigDist = Sigmoid(1.0, 1.0 - eps(), -10.0, sqrt(2))
-
-# TODO check this one!
 function isstuck(m, i)
     i < m.axioms.min_iter && return false
     return m.axioms.local_threshold >= length(unique(last(history(m), 10)))
@@ -47,9 +40,6 @@ function migrate!(mig::AbstractMigration, agent::AbstractAgent)
         # second probabilities step
         target_group_bv = target_group .== mig.env_island.groups
         target_indices = eachindex(mig.env_island.groups)[target_group_bv]
-        #=@info "current: $current_island"
-        @info "targets: $target_indices"
-        @info "cur in tar? $(current_island in target_indices)"=#
         p_island = probabilities(current_island, target_indices, mig.env_island, eff_range, dir, σ, prox_scaler)
         target_island = rand(Categorical(p_island))
         d_current_target = mig_index(distances(mig.env_island), from=current_island, to=target_island)
