@@ -12,7 +12,7 @@ end
 
 arrived(m, current_group) = current_group == m.finish_group
 
-to_finite(x) = isfinite(x) ? x : zero(x)
+force_finite(x) = isfinite(x) ? x : zero(x)
 
 """
 	migrate!(m::AbstractMigration, a::AbstractAgent, pe::AbstractEnvironment)
@@ -30,33 +30,28 @@ function migrate!(mig::AbstractMigration, agent::AbstractAgent)
     group_history = [mig.env_island.groups[start(mig)]] # maybe there's a better way... track this, too?
     
     while i < mig.axioms.max_iter && !(arrived(mig, group_history[end]) || isstuck(mig, i))
-        dir = direction(mig)
         current_island = current(mig)
 
         eff_range = erange(agent, mig.energy[end])
         d_current_finish = mig_index(distances(mig.env_group), from=current_island, to=finish(mig))
 
         σ = mig.axioms.default_precision * evaluate(SigPrecision, d_current_finish, 2 * range(agent))
+        prox_scaling = isfinite(d_current_finish) ? cdf(E, d_current_finish) : 1.0
+        VM = set_VM(direction(mig), prox_scaling, σ)
 
-        prox_scaler = isfinite(d_current_finish) ? cdf(E, d_current_finish) : 1.0
-
-        p_group = probabilities(current_island, group_history[end], mig.env_group, eff_range, dir, σ, prox_scaler)
-        target_group = rand(Categorical(p_group))
+        target_group = probabilities(current_island, group_history[end], mig.env_group, eff_range, VM)
         push!(group_history, target_group)
 
         # second probabilities step
         target_group_bv = target_group .== mig.env_island.groups
         target_indices = eachindex(mig.env_island.groups)[target_group_bv]
-        #=@info "current: $current_island"
-        @info "targets: $target_indices"
-        @info "cur in tar? $(current_island in target_indices)"=#
-        p_island = probabilities(current_island, target_indices, mig.env_island, eff_range, dir, σ, prox_scaler)
-        target_island = rand(Categorical(p_island))
+        target_island = probabilities(current_island, target_indices, mig.env_island, eff_range, VM)
+        
         d_current_target = mig_index(distances(mig.env_island), from=current_island, to=target_island)
 
-        drain = minimum([1.0, to_finite(d_current_target) / range(agent)])
+        drain = minimum([1.0, force_finite(d_current_target) / range(agent)])
         push!(mig.energy, minimum([1.0, mig.energy[end] - drain + 0.2])) # mig.env.axioms.hab_qual[target_pos] --> TODO make a vector with a value for each island to represent its habitat quality
-        push!(mig.travelled, to_finite(d_current_target))
+        push!(mig.travelled, force_finite(d_current_target))
         push!(history(mig), target_island)
 
         i += 1
