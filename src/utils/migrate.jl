@@ -44,8 +44,8 @@ function migrate!(mig::AbstractMigration, agent::AbstractAgent)
 
         # second probabilities step
         target_group_bv = target_group .== mig.env_island.groups
-        target_indices = eachindex(mig.env_island.groups)[target_group_bv]
-        target_island = probabilities(current_island, target_indices, mig.env_island, eff_range, VM)
+        candidate_islands = eachindex(mig.env_island.groups)[target_group_bv]
+        target_island = probabilities(current_island, candidate_islands, mig.env_island, eff_range, VM)
         
         d_current_target = mig_index(distances(mig.env_island), from=current_island, to=target_island)
 
