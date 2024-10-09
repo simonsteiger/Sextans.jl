@@ -12,61 +12,47 @@ end
 
 const candidates = (:)
 
+function set_VM(dir, scaling, σ)
+    τ = deg2rad(scaling * σ)^2
+    κ = 1 / maximum([τ, 1e-9]) # avoid loss of precision
+    return VonMises(dir, κ)
+end
+
 """
 	probabilities(current, env, erange, dir)
 
 Returns the probability vector for transitioning from the `current` position to the targets stored in `env`. This depends on the effective range `erange` and the direction `dir` of the migration.
 """
-function probabilities(current_island, current_group, env::GroupEnvironment, erange, dir, σ, prox_scaler)
-    τ = deg2rad(prox_scaler * σ)^2
-    κ = 1 / maximum([τ, 1e-9])
-    Δ = mig_index(distances(env), from=current_island, to=candidates)
-    α = mig_index(angles(env), from=current_island, to=candidates)
+function probabilities(current_island, current_group, env::GroupEnvironment, erange, VM)
+    Δ, α = [mig_index(f(env), from=current_island, to=candidates) for f in [distances, angles]]
+    
     p_Δ = Δ .<= erange
-    VM = VonMises.(dir, κ)
     p_α = alt_adjust_VM.(VM, α) ./ pdf.(VM, mean.(VM))
     p = p_α .* p_Δ
+    
     stayed = rand(Bernoulli(prod(1 .- p)))
-    # @info "group stayed? $stayed"
     if stayed
         p = zero(p)
         p[current_group] = oneunit(eltype(p))
-        # @info p
-        return p
+        return rand(Categorical(p))
     end
-    return normalize(p, 1)
+    
+    return rand(Categorical(normalize(p, 1)))
 end
 
-function probabilities(current_island, candidate_islands, env::IslandEnvironment, erange, dir, σ, prox_scaler)
-    τ = deg2rad(prox_scaler * σ)^2
-    κ = 1 / maximum([τ, 1e-9])
-    Δ = mig_index(distances(env), from=current_island, to=candidate_islands)
-    α = mig_index(angles(env), from=current_island, to=candidate_islands)
+function probabilities(current_island, candidate_islands, env::IslandEnvironment, erange, VM)
+    Δ, α = [mig_index(f(env), from=current_island, to=candidates)[candidate_islands] for f in [distances, angles]]
     p_Δ = Δ .<= erange
-    VM = VonMises.(dir, κ)
     p_α = alt_adjust_VM.(VM, α) ./ pdf.(VM, mean.(VM))
     p = p_α .* p_Δ
-    # @info "island: $p"
 
     xx = zeros(size(distances(env), 1))
-    xx[candidate_islands] .= p
+    xx[candidate_islands] .= p # maybe slow
 
-    out = normalize(xx, 1)
-    !all(isnan, out) && return out
-
-    p = zeros(size(distances(env), 1))
-    p[current_island] = oneunit(eltype(p))
-    return p
-
-    #=
-    # @info "cur not-in cand $(current_island ∉ candidate_islands)"
-    current_island ∉ candidate_islands && return out
-    
-    stayed = rand(Bernoulli(prod(1 .- p)))
-    !stayed && return out
+    norm_p = normalize(xx, 1)
+    !all(isnan, norm_p) && return rand(Categorical(norm_p))
 
     p = zeros(size(distances(env), 1))
     p[current_island] = oneunit(eltype(p))
-    return p
-    =#
+    return rand(Categorical(p))
 end

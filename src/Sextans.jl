@@ -3,7 +3,6 @@ __precompile__(true)
 module Sextans
 
 using Distributions
-using Random: rand, AbstractRNG, Random, default_rng
 using Base: -, +
 using Chain
 using DataFrames
@@ -11,7 +10,6 @@ using Distances
 using LinearAlgebra
 
 export Angle, value, -, polarangle
-export polar, Polar, rand
 export Sigmoid, evaluate
 export Axioms
 
@@ -33,7 +31,6 @@ include("types/agents.jl")
 include("types/environments.jl")
 include("types/migrations.jl")
 include("utils/angle.jl")
-include("utils/polar_normal.jl")
 include("utils/sigmoid.jl")
 include("utils/erange.jl")
 include("utils/migrate.jl")
