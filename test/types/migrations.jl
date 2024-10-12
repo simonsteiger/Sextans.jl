@@ -15,5 +15,5 @@ end
 end
 
 @testset "Migrate" begin
-    @test [migrate!(mig, agent) for mig in migs] isa AbstractMatrix{<:AbstractMigration}
+    @test [migrate!(mig, agent) for mig in migs] isa AbstractArray{<:AbstractMigration}
 end

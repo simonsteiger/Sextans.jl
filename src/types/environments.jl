@@ -25,7 +25,7 @@ struct ProtoEnvironment <: AbstractEnvironment
 	distances::Matrix{Float64}
 	angles::Matrix{Float64}
 	groups::Vector{Int64}
-	function ProtoEnvironment(df_rows, df_cols)
+	function ProtoEnvironment(df_rows, df_cols; groupcol=:bin_id)
 		distances = map(df_rows.latlon) do group
             haversine.(df_cols.latlon, Ref(group),) ./ 1000
         end |> x -> transpose(reduce(hcat, x))
@@ -33,7 +33,7 @@ struct ProtoEnvironment <: AbstractEnvironment
             deg2rad.(polarangle.(df_cols.latlon, Ref(group),))
         end |> x -> transpose(reduce(hcat, x))
 		# Use cols because that's always islands
-		groups = tiedindex(df_cols[:, "Island Group"])
+		groups = tiedindex(df_cols[:, groupcol])
 		return new(distances, angles, groups)
 	end
 end
