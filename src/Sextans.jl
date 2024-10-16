@@ -16,7 +16,7 @@ export Axioms
 export AbstractAgent, PassiveAgent, ActiveAgent
 export lifespan, range, flightspeed, resistance, energy
 
-export AbstractEnvironment, ProtoEnvironment, GroupEnvironment, IslandEnvironment
+export AbstractEnvironment, Environment
 export angles, distances
 
 export AbstractMigration, TargetedMigration
@@ -24,7 +24,7 @@ export start, finish, travelled, history, current
 
 export erange
 export migrate!
-export probabilities
+export step!
 
 include("types/axioms.jl")
 include("types/agents.jl")
