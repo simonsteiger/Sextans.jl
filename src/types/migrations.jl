@@ -38,11 +38,6 @@ Represents a targeted migration in the environment.
 - `history::Vector{Int64}`: The history of visited islands.
 - `travelled::Vector{Float64}`: The distances travelled between each step.
 - `energy::Vector{Float64}`: The energy levels at each step of the migration.
-
-# Constructor
-    TargetedMigration(env, start::Integer, finish::Integer, axioms)
-
-Constructs a TargetedMigration with the given environment, start island, finish group, and axioms.
 """
 struct TargetedMigration <: AbstractMigration
     axioms::Axioms
@@ -61,8 +56,8 @@ struct TargetedMigration <: AbstractMigration
     end
 end
 
-start(x::AbstractMigration) = x.start_island
-
+start(x::AbstractMigration) = x.start
+finish(x::AbstractMigration) = x.finish
 target(x::TargetedMigration) = x.target
 
 mig_index(X; from, to) = X[to, from]

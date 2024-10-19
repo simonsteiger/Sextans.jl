@@ -17,23 +17,6 @@ end
 _envrow(f, i, col) = f.(Ref(col[i]), col)
 
 """
-	Environment
-
-Store data about the physical environment.
-"""
-struct Environment <: AbstractEnvironment
-    distances::Matrix{Float64}
-    angles::Matrix{Float64}
-    function Environment(proto::ProtoEnvironment, start::Int64)
-        invalid_bv = copy(proto.invalid_target)
-        invalid_bv[start] = true
-        proto.distances[invalid_bv, :] .= Inf
-        return new(proto.distances, proto.angles)
-    end
-end
-
-
-"""
 	ProtoEnvironment
 
 Preliminarily store data about the physical environment.
@@ -49,6 +32,22 @@ struct ProtoEnvironment <: AbstractEnvironment
         angles = map(i -> _envrow(polarangle, i, latlon), itr) |> _unnest .|> deg2rad
         groups = tiedindex(group)
         return new(distances, angles, groups, invalid_target)
+    end
+end
+
+"""
+	Environment
+
+Store data about the physical environment.
+"""
+struct Environment <: AbstractEnvironment
+    distances::Matrix{Float64}
+    angles::Matrix{Float64}
+    function Environment(proto::ProtoEnvironment, start::Int64)
+        invalid_bv = copy(proto.invalid_target)
+        invalid_bv[start] = true
+        proto.distances[invalid_bv, :] .= Inf
+        return new(proto.distances, proto.angles)
     end
 end
 

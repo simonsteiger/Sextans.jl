@@ -19,7 +19,7 @@ function set_VM(dir, scaling, σ)
 end
 
 """
-	step!(p, current, env, erange, VM)
+	update!(p, current, env, erange, VM)
 
 Returns the next position for a migration step from the `current_island` and `current_group`, updating the probability vector `p`.
 
@@ -30,7 +30,7 @@ Returns the next position for a migration step from the `current_island` and `cu
 - `erange`: Effective range for migration
 - `VM`: Von Mises distribution for directional preference
 """
-function step!(p, current, env, erange, VM)
+function update!(p, current, env, erange, VM)
     # Maybe pass probability vector p as function argument? we could then in-place modify it each time
     Δ = mig_index(distances(env), from=current, to=candidates)
     α = mig_index(angles(env), from=current, to=candidates)
@@ -43,12 +43,12 @@ function step!(p, current, env, erange, VM)
     if stayed
         fill!(p, zero(eltype(p)))
         p[current] = oneunit(eltype(p))
-        return rand(Categorical(p))
+        return p
     else
         normalize!(p, 1)
     end
 
-    return rand(Categorical(p))
+    return p
 end
 
 function probabilities(current_island, candidate_islands, env::IslandEnvironment, erange, VM)
