@@ -19,25 +19,36 @@ function set_VM(dir, scaling, σ)
 end
 
 """
-	probabilities(current, env, erange, dir)
+	update!(p, current, env, erange, VM)
 
-Returns the probability vector for transitioning from the `current` position to the targets stored in `env`. This depends on the effective range `erange` and the direction `dir` of the migration.
+Returns the next position for a migration step from the `current_island` and `current_group`, updating the probability vector `p`.
+
+# Arguments
+- `p`: Probability vector to be updated in-place
+- `current`: Current island position
+- `env`: Island environment containing distance and angle information
+- `erange`: Effective range for migration
+- `VM`: Von Mises distribution for directional preference
 """
-function probabilities(current_island, current_group, env::GroupEnvironment, erange, VM)
-    Δ, α = [mig_index(f(env), from=current_island, to=candidates) for f in [distances, angles]]
-    
-    p_Δ = Δ .<= erange
-    p_α = alt_adjust_VM.(VM, α) ./ pdf.(VM, mean.(VM))
-    p = p_α .* p_Δ
-    
+function update!(p, current, env, erange, VM)
+    # Maybe pass probability vector p as function argument? we could then in-place modify it each time
+    Δ = mig_index(distances(env), from=current, to=candidates)
+    α = mig_index(angles(env), from=current, to=candidates)
+
+    @. Δ = Δ <= erange
+    @. α = alt_adjust_VM(VM, α) / pdf(VM, mean(VM))
+    @. p = α * Δ
+
     stayed = rand(Bernoulli(prod(1 .- p)))
     if stayed
-        p = zero(p)
-        p[current_group] = oneunit(eltype(p))
-        return rand(Categorical(p))
+        fill!(p, zero(eltype(p)))
+        p[current] = oneunit(eltype(p))
+        return p
+    else
+        normalize!(p, 1)
     end
-    
-    return rand(Categorical(normalize(p, 1)))
+
+    return p
 end
 
 function probabilities(current_island, candidate_islands, env::IslandEnvironment, erange, VM)
