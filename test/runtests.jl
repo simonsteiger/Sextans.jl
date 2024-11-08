@@ -19,7 +19,7 @@ end
 axm = Axioms(
     max_iter=50,
     min_iter=10,
-    default_precision=120,
+    default_precision=45,
     max_range=5000,
     local_threshold=5
 )
@@ -30,6 +30,13 @@ targets = collect(2:nrow(df_islands))
 proto = ProtoEnvironment(df_islands.latlon, df_islands.invalid_target, df_islands[:, "Island Group"])
 
 migs = [TargetedMigration(proto, 1, target, axm) for target in targets]
+
+africa_australia = TargetedMigration(proto, 2, 4, axm)
+aaagent = ActiveAgent(3000, 60, 4, missing)
+migrate!(africa_australia, aaagent)
+
+df_islands[history(africa_australia), :]
+
 
 #=
 @testset "Sigmoid" begin

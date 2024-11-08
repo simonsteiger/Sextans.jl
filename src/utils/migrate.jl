@@ -8,6 +8,22 @@ arrived(m, current) = current in m.finish
 
 force_finite(x) = isfinite(x) ? x : zero(x)
 
+function keep_top_k!(x::AbstractArray{Float64}, k::Int)
+    # Find indices of k largest elements
+    top_k_indices = partialsortperm(x, 1:k, rev=true)
+    
+    # Create a mask of zeros
+    mask = zeros(length(x))
+    
+    # Set the positions of top k elements to 1
+    mask[top_k_indices] .= 1
+    
+    # Multiply original vector by mask in-place
+    x .*= mask
+    
+    return x
+end
+
 """""
     migrate!(m::AbstractMigration, a::AbstractAgent, pe::AbstractEnvironment)
 
@@ -36,12 +52,12 @@ function migrate!(mig::AbstractMigration, agent::AbstractAgent)
         VM = set_VM(direction(mig), prox_scaling, σ)
 
         update!(p, current_island, mig.env, eff_range, VM)
-        next_island = rand(Categorical(p))
+        next_island = rand(Categorical(normalize!(keep_top_k!(p, 5), 1.0)))
 
         d_current_next = mig_index(distances(mig.env), from=current_island, to=next_island)
         drain = min(1.0, force_finite(d_current_next) / range(agent))
 
-        push!(mig.energy, min(1.0, mig.energy[end] - drain + 0.2)) # mig.env.axioms.hab_qual[target_pos] --> TODO make a vector with a value for each island to represent its habitat quality
+        push!(mig.energy, 1.0) # mig.env.axioms.hab_qual[target_pos] --> TODO make a vector with a value for each island to represent its habitat quality
         push!(mig.travelled, force_finite(d_current_next))
         push!(history(mig), next_island)
 
