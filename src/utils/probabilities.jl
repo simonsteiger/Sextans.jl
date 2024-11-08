@@ -45,10 +45,7 @@ function update!(p, current, env, erange, VM)
         fill!(p, zero(eltype(p)))
         p[current] = oneunit(eltype(p))
         return p
-    else
-        normalize!(p, 1)
     end
-
     return p
 end
 
