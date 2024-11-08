@@ -34,7 +34,7 @@ function update!(p, current, env, erange, VM)
     # Maybe pass probability vector p as function argument? we could then in-place modify it each time
     Δ = mig_index(distances(env), from=current, to=candidates)
     α = mig_index(angles(env), from=current, to=candidates)
-    @. α[α .> π] = -Inf
+    @. α[!Base.isbetween(mean(VM) - pi/2, α, mean(VM) + pi/2)] = -Inf
 
     @. Δ = Δ <= erange
     @. α = alt_adjust_VM(VM, α) / pdf(VM, mean(VM))
